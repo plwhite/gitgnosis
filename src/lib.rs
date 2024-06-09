@@ -102,6 +102,12 @@ pub fn query_palm(content: String) -> Result<String> {
     Ok(response.candidates.unwrap()[0].output.clone())
 }
 
+pub fn query(content: String) -> Result<String> {
+    // Run the test on Palm as that's currently free to use for some developers.
+    // xxx should be a feature flag
+    return query_palm(content);
+}}
+
 fn list_commits() -> Result<HashMap<String, String>> {
     // Run git log --oneline to get all commits
     // Put all the strings into a HashMap of Commit ID, String
@@ -138,19 +144,24 @@ pub fn generate_changelog_section() -> Result<String> {
     let commits = list_commits()?;
     let commit_prompt = commits_to_prompt_string(commits);
     let prompt = PROMPT_PREFIX.to_string() + &commit_prompt + PROMPT_EXAMPLE_CHANGELOG;
-    let result = query_palm(prompt)?;
+    //let result = query_palm(prompt)?;
+    let result = query_openapi(prompt)?;
     Ok(result)
 }
 
 #[cfg(test)]
 mod tests {
+    use std::result;
+
     use super::*;
 
     #[test]
     fn hello_world() {
         let content = "Hello".to_string();
         // Run the test on Palm as that's currently free to use for some developers.
-        let result = query_palm(content).unwrap();
+        //let result = query_palm(content).unwrap();
+        // Use OpenAI
+        let result = query_openapi(content).unwrap();
         println!("{}", result);
         assert!(result.contains("Hello"));
     }
